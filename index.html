@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: red; /* Set the background color to red */
+            color: white; /* Set the font color to white */
+        }
+        .container {
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            text-align: center;
+        }
+        .product-info {
+            margin-top: 20px;
+        }
+        img {
+            max-width: 300px;
+            display: block;
+            margin: 0 auto 10px; /* Center the image */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Scan Barcode to Get Product Details</h1>
+        <input type="text" id="barcode" placeholder="Scan or Enter Barcode" onkeyup="fetchProductDetails()">
+        <div class="product-info" id="product-info"></div>
+    </div>
+
+    <!-- JavaScript section -->
+    <script>
+        // Function that is called when the user types in the input field
+        function fetchProductDetails() {
+            const barcode = document.getElementById('barcode').value.trim(); // Get the value of the barcode input and trim whitespace
+
+            // Ensure the barcode is not empty and meets length criteria
+            if (barcode.length > 0) {
+                fetch(`get_product.php?barcode=${encodeURIComponent(barcode)}`) // Fetch product details from the PHP script
+                    .then(response => response.json()) // Parse the response as JSON
+                    .then(data => {
+                        const productInfo = document.getElementById('product-info'); // Get the product info container
+                        if (data.error) { // If there's an error (e.g., product not found)
+                            productInfo.innerHTML = `<p>${data.error}</p>`; // Display the error message
+                        } else { // If the product is found
+                            // Redirect to the product details page with the barcode as a query parameter
+                            window.location.href = `product_details.php?barcode=${encodeURIComponent(barcode)}`;
+                        }
+                    })
+                    .catch(error => {
+                        const productInfo = document.getElementById('product-info');
+                        productInfo.innerHTML = `<p>There was an error fetching the product details. Please try again.</p>`;
+                    });
+            } else {
+                const productInfo = document.getElementById('product-info');
+                productInfo.innerHTML = `<p>Please enter a barcode.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
